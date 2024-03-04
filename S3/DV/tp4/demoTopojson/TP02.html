@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.path-style {
+  fill: #ecc;
+  stroke: #000;
+  stroke-width: .5px;
+}
+
+path:hover {
+  fill: red;
+}
+
+</style>
+<body>
+<script src="d3.v3.min.js"></script>
+<script src="topojson.v1.min.js"></script>
+<script>
+
+var width = 960,
+    height = 500;
+
+var path = d3.geo.path();
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+var url = "us.json"
+d3.json(url, function(error, topology) {
+  if (error) throw error;
+  
+  console.log("topojson", topology)
+  var geojson = topojson.feature(topology, topology.objects.countries).features;
+  console.log("geojson", geojson)
+
+  svg.selectAll("path")
+      .data(geojson)
+    .enter().append("path")
+      .attr("d", path)
+	  .attr("class", 'path-style');
+});
+
+</script>

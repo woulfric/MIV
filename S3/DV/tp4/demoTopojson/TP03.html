@@ -1,0 +1,89 @@
+<html>
+  <head>
+  </head>
+  <body>
+    <script src="d3.v3.min.js" charset="utf-8"></script>
+    <script src="topojson.v1.min.js"></script>
+	<script>
+	var width = 960,
+  height = 600;
+  var color = d3.scale.quantize()
+								.range(["rgb(237,248,233)","rgb(186,228,179)","rgb(116,196,118)",
+								"rgb(23,248,233)","rgb(18,228,179)","rgb(11,196,118)",
+								,"rgb(49,16,84)","rgb(0,10,44)", "rgb(49,163,4)","rgb(10,109,44)",
+								"rgb(207,248,203)","rgb(16,228,79)","rgb(16,16,118)",
+								"rgb(23,248,33)","rgb(18,128,179)","rgb(211,96,118)",
+								,"rgb(49,16,184)","rgb(120,10,44)", "rgb(149,163,4)","rgb(150,109,44)"]);
+
+var svg = d3.select('body').append('svg')
+           .attr('width', width)
+           .attr('height', height)
+           .attr('preserveAspectRatio', "xMidYMid meet")
+           .attr('viewBox', '0 0 900 900');
+
+var projection = d3.geo.mercator() // Lambert-93
+          .center([3.454071, 36.279229]) // On centre la carte sur la France
+          .scale(120)
+          .translate([width / 2, height / 2]);
+		  
+var path =  d3.geo.path().projection(projection);
+d3.csv('world-country-names.csv', function(d){
+color.domain([
+					d3.min(d, function(d) { return d.id; }), 
+					d3.max(d, function(d) { return d.id; })
+		  ]);
+		  
+	  d3.json('world-110m.json', function(err, data) {
+	  
+  var outlines = topojson.feature(data, data.objects.countries);
+  
+                for (var i = 0; i < d.length; i++) {
+				
+						var dataId = d[i].id;				
+						var dataName = d[i].name;	
+		                //console.log(dataId, dataName);
+						
+						console.log(outlines.features[0].properties);
+						for (var j = 0; j < outlines.features.length; j++) {
+						
+							var Id = outlines.features[j].id;
+				
+							if (dataId == Id) {
+						
+								//Copy the data value into the JSON
+								console.log("----");
+								outlines.features[j].properties.name = dataName;
+								console.log(outlines.features[j].properties.name);
+								break;
+								
+							}
+						 }
+		 }
+						
+  //console.log(outlines);
+        svg.selectAll('path')
+         .data(outlines.features)
+         .enter()
+         .append('path')
+         .attr('d', path)
+         .style('fill', '#fff')
+         .style('stroke', 'black')
+         .style('stroke-width', '.3px')
+		 .style("fill", function(d) {
+					   		var value = d.id; if(value>50) value=value/10;
+					   		console.log(value);
+					   		if (value) {
+					   			return color(value);
+					   		} else {
+					   			return "#ccc";
+					   		}
+					   })
+		 .on("mouseover", function(d){console.log(d.properties.name)});
+		 
+		
+		  });
+      
+});
+	</script>
+  </body>
+</html>

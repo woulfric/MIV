@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title></title>
+
+    <script type="text/javascript" src="d3.v3.js"></script>
+ </head>
+
+<body>
+    
+</body>
+<script type="text/javascript">
+var h = 600,
+    w = 1100;
+
+// set-up unit projection and path
+var projection = d3.geo.mercator()
+    .scale(1)
+	//.center([5.677566,19.601207])
+    .translate([0, 0]);
+
+var path = d3.geo.path()
+    .projection(projection);
+
+// set-up svg canvas
+var svg = d3.select("body").append("svg")
+    .attr("height", h)
+    .attr("width", w);
+
+d3.json("countries.json", function(error, data) {
+
+     //var world = data.features;
+     var k=0;
+     for (var j = 0; j < data.features.length; j++) {
+                        
+        if(data.features[j].id=="DZA" || data.features[j].id=="DEU" || data.features[j].id=="ARE") 
+            {data.features[k]=data.features[j];
+                k++;
+            }
+            
+
+        }
+        data.features.length=k;
+        console.log(k);
+
+		console.log(path.bounds(data));
+		console.log(data);
+
+        projection.scale(1200).translate([w/2, h/2]);
+
+        svg.selectAll("path")
+            .data(data.features)
+            .enter()
+            .append("path")
+            .style("fill", "none")
+            .style("stroke", "grey")
+            .style("stroke-width", "1px")
+            .attr("d", path);
+    })
+
+      
+
+</script>
+
+</html>

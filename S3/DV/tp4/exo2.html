@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exo 2</title>
+</head>
+<body></body>
+<script src="https://unpkg.com/topojson@3"></script>
+<script type="module">
+    import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+
+    let width = 1080;
+    let height = 720;
+
+    let svg = d3.select("body")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+
+    d3.json("algeria.json").then(function (data) {
+    const polygons = topojson.feature(data, data.objects.countries).features;
+    console.log(polygons);
+
+
+    let wilaya = polygons.filter(
+    (d) => d.properties["NAME_1"] === "Tizi Ouzou"
+        )[0];
+
+        console.log(wilaya);
+        
+        const projection = d3.geoMercator().fitSize([width, height], wilaya);
+        const path = d3.geoPath().projection(projection);
+        const points = wilaya.geometry.coordinates[0].slice(0,2);
+        
+        
+
+        svg
+            .append('path')
+            .datum(wilaya)
+            .attr("d", path)
+            .style("fill", "blue")
+            .style("stroke", "black")
+
+        svg
+            .selectAll("circle")
+            .append("path")
+            .data(points)
+            .enter()
+            .append("circle")
+            .attr("cx", (p) => projection(p)[0])
+            .attr("cy", (p) => projection(p)[1]) 
+            .attr("r", 5)
+            .style("fill", "red") 
+
+            
+    
+    })
+</script>
+</html>

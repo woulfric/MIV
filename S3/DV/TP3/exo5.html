@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>exo 5</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+  </head>
+  <style type="text/css">
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: black;
+    }
+    .axis text {
+      font-family: sans-serif;
+      font-size: 8px;
+    }
+  </style>
+  <body></body>
+  <script type="module">
+    // * REPRESENTATION 1
+    // Charger le fichier CSV
+    d3.csv("penguins.csv").then(function (data) {
+      // Créer le conteneur SVG
+      let h = 300;
+      let w = 500;
+      let padding = 40;
+
+      const svg = d3
+        .select("body")
+        .append("svg")
+        .attr("width", w)
+        .attr("height", h + 100)
+        .attr("viewBox", [0, 0, w, h])
+        .attr("style", "max-width: 100%; height: auto;")
+        .append("g")
+        .attr("transform", "translate(" + padding + "," + padding + ")");
+
+      const islandSpecies = d3.group(
+        data,
+        (d) => d.island,
+        (d) => d.species
+      );
+
+      let groupedData = [];
+      let minYDomain = Infinity;
+      let maxYDomain = -Infinity;
+
+      for (let [islandKey, islandValue] of islandSpecies.entries()) {
+        // console.log(islandKey + " = " + islandValue);
+        const islandObj = {
+          island: islandKey,
+          Adelie: 0,
+          Chinstrap: 0,
+          Gentoo: 0,
+        };
+        for (let [specieKey, specieValue] of islandValue.entries()) {
+          islandObj[specieKey] = specieValue.length;
+          if (specieValue.length < minYDomain) minYDomain = specieValue.length;
+
+          if (specieValue.length > maxYDomain) maxYDomain = specieValue.length;
+
+          // console.log(specieKey + " = " + specieValue);
+        }
+
+        groupedData.push(islandObj);
+      }
+
+      const subgroups = ["Adelie", "Chinstrap", "Gentoo"];
+
+      let xScale = d3
+        .scaleBand()
+        .domain(["Torgersen", "Biscoe", "Dream"])
+        .range([padding, w - padding])
+        .padding([0.1]);
+
+      svg
+        .append("g")
+        .attr("class", "axis")
+        .attr("class", "xAxis")
+        .attr("transform", `translate(${0}, ${h - padding})`)
+        .call(d3.axisBottom(xScale).tickSizeOuter(3));
+
+      let yScale = d3
+        .scaleLinear()
+        .domain([0, 200])
+        .range([h - padding, padding]);
+      svg.append("g").call(d3.axisLeft(yScale));
+
+      let colorScale = d3
+        .scaleOrdinal()
+        .domain(subgroups)
+        .range(["#e41a1c", "#377eb8", "#4daf4a"]);
+
+      let stackedData = d3.stack().keys(subgroups)(groupedData);
+      console.log(stackedData);
+
+      // end
+      // Créer l'échelle x
+      stackedData = stackedData.reverse()
+      svg
+        .append("g")
+        .selectAll("g")
+        // Enter in the stack data = loop key per key = group per group
+        .data(stackedData)
+        .join("g")
+        .attr("fill", function (d) {
+          return colorScale(d.key);
+        })
+        .selectAll("rect")
+        // enter a second time = loop subgroup per subgroup to add all rectangles
+        .data(function (d) {
+          return d;
+        })
+        .enter()
+        .append("rect")
+        .attr("x", function (d) {
+          return xScale(d.data.island);
+        })
+        .attr("y", function (d) {
+          return yScale(d[1] -d[0]);
+        })
+        .attr("height", function (d) {
+          return yScale(d[0]) - yScale(d[1]);
+        })
+        .attr("width", xScale.bandwidth());
+
+    });
+  </script>
+</html>

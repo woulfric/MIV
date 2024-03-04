@@ -1,0 +1,17 @@
+mécanisme de communication entre deux threads (processus légers). Le buffer a une variable entière "valeur" 
+et un indicateur booléen "available" pour indiquer si une valeur
+est disponible dans le buffer.
+
+La méthode synchronisée `prendre()` est utilisée pour extraire une valeur du buffer. Si aucune valeur n'est disponible 
+(`available == false`), le thread qui appelle cette méthode entre dans une boucle `while` et attend avec la méthode `wait()`.
+ L'utilisation de `wait()` suspend l'exécution du thread jusqu'à ce que le signal `notifyAll()` soit reçu. Une fois la valeur
+  disponible, elle est renvoyée et l'indicateur `available` est mis à `false` avant de notifier tous les threads en attente.
+
+La méthode synchronisée `mettre(int val)` est utilisée pour déposer une valeur dans le buffer. Si le buffer a déjà une valeur 
+(`available == true`), le thread entre dans une boucle `while` et attend avec la méthode `wait()`. Une fois que le buffer est 
+disponible, la nouvelle valeur est placée dans le buffer, l'indicateur `available` est mis à `true`, et tous les threads
+ en attente sont notifiés avec `notifyAll()`.
+
+En résumé, ce code semble mettre en œuvre un mécanisme de synchronisation pour assurer un accès sécurisé au buffer partagé 
+entre plusieurs threads, évitant ainsi les conditions de concurrence. Les méthodes `prendre` et `mettre` garantissent 
+que les opérations sur le buffer sont effectuées de manière coordonnée entre les threads.

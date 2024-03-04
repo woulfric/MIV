@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson@3"></script>
+    <title>Exo 3</title>
+</head>
+
+<body>
+
+    <script>
+        const width = 700;
+        const height = 700;
+
+        const svg = d3
+            .select("body")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        d3.json("algeria-provinces.json").then(function(data) {
+            var provinces = topojson.feature(data, data.objects.countries).features;
+            var projection = d3.geoMercator().fitSize([width, height], topojson.merge(data, data.objects.countries.geometries));
+            var path = d3.geoPath().projection(projection);
+
+            svg.selectAll("path")
+                .data(provinces)
+                .enter()
+                .append("path")
+                .attr("d", path)
+                .style("stroke", "black")
+                .style("stroke-width", 1)
+                .style("fill", "blue");
+
+            function intersection(array1, array2) {
+                return array2.filter(value => array1.includes(Math.abs(value + 1)) && value < 0);
+            }
+
+            var l = 0;
+            var ars = data.objects.countries.geometries;
+            for (let i = 0; i < 48; i++) {
+                let j = i + 1;
+                let province1 = ars[i];
+                let result_filter_total = [];
+
+                while (j < 48) {
+                    let province2 = ars[j];
+                    let result_filter = intersection(province1.arcs[0], province2.arcs[0]);
+
+                    if (result_filter.length > 0) {
+                        console.log(i + " " + province1.arcs);
+                        console.log(i + " " + province1.arcs);
+
+                        // Fixing the typo in the geometry type
+                        var myobj = {
+                            "arcs": [result_filter],
+                            "type": "LineString",  // Corrected the type
+                            "properties": {}
+                        };
+
+                        var provinces = topojson.feature(data, myobj);
+                        var projection = d3.geoMercator().fitSize([width, height], topojson.merge(data, data.objects.countries.geometries));
+                        var path = d3.geoPath().projection(projection);
+
+                        svg.append("path")
+                            .data([provinces]) // Pass an array containing the feature
+                            .attr("d", path)
+                            .style("stroke", getRandomColor())
+                            .style("stroke-width", 2)
+                            .style("fill", "none");
+                    }
+
+                    // Move these lines inside the while loop
+                    var l = result_filter.length + l;
+                    j = j + 1;
+                }
+            }
+
+            console.log(l);
+
+            function getRandomColor() {
+                const letters = "0123456789ABCDEF";
+                let color = "#";
+                for (let i = 0; i < 3; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }
+
+        });
+    </script>
+</body>
+
+</html>

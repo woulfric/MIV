@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>exo 1</title>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+    </head>
+    <body>
+        <script>
+            // * REPRESENTATION 1
+            // Charger le fichier CSV
+            d3.csv("us-cities.csv").then(function (citiesData) {
+                // Créer le conteneur SVG
+                let h = 1500; 
+                let w = 1000; 
+                let padding = 80; 
+
+                let svg = d3
+                    .select("body")
+                    .append("svg")
+                    .attr("width", w)
+                    .attr("height", h);
+
+                // Créer l'échelle x
+                let xScale = d3
+                    .scaleLinear()
+                    .domain([0, d3.max(citiesData, (d) => +d.population)])
+                    .range([padding, w - padding]);
+
+                // Créer l'échelle y
+                let yScale = d3
+                    .scaleBand()
+                    .domain(citiesData.map((d) => d.place))
+                    .range([padding, h - padding]);
+
+                // Créer les barres
+                svg.selectAll(".bar")
+                    .data(citiesData)
+                    .enter()
+                    .append("rect")
+                    .attr("class", "bar")
+                    .attr("x", padding) 
+                    .attr("width", (d) => xScale(+d.population) - padding)
+                    .attr("y", (d) => yScale(d.place)) 
+                    .attr("height", 20);
+
+                // Ajouter l'axe y
+                let yAxis = d3.axisLeft(yScale);
+                svg.append("g")
+                    .attr("class", "axis")
+                    .attr("transform", `translate(${padding}, 0)`)
+                    .call(yAxis);
+
+                // Ajouter l'axe x
+                let xAxis = d3.axisBottom(xScale).ticks(5);
+                svg.append("g")
+                    .attr("class", "axis")
+                    .attr("transform", `translate(0, ${h - padding})`)
+                    .call(xAxis);
+            });
+
+        </script>
+    </body>
+</html>

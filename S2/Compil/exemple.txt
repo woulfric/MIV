@@ -1,0 +1,13 @@
+NomProg
+{
+    DEC VAR 
+    {
+        int X,Y;
+
+    }
+    PART INST
+    {
+        x X @
+        
+    }
+}

@@ -1,0 +1,63 @@
+
+<!DOCTYPE html>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<style>
+h1 {
+  font-family:arial;
+  font-size:2em;
+  color:#333;
+}
+#info {
+  position:absolute;
+  top: 10px;
+  left: 10px;
+}
+.states {
+	fill: #b00;
+	stroke: #00f;
+	stroke-width:0.5px;
+}
+.states:hover {
+	fill: steelblue;
+}
+</style>
+<body>
+<div id="info"><h1 id="name"></h1></div>
+
+<script src="d3.v3.min.js"></script>
+<script src="topojson.v1.min.js"></script>
+<script>
+ 
+var width = 960,
+	height = 500;
+ 
+var svg = d3.select('body').append('svg')
+	.attr('width', width)
+	.attr('height', height);
+ 
+var projection = d3.geo.mercator()
+//var projection = d3.geo.conicConformal()
+	.scale(2000)
+	.center([-1,48])
+	.translate([width / 2, height / 2]);
+ 
+var path = d3.geo.path()
+	.projection(projection);
+ 
+d3.json('france.json', function(error, us) {
+	svg.selectAll('path')
+		.data(topojson.feature(us, us.objects.departements).features)
+		.enter()
+		.append('path')
+		.attr('class', 'states')
+		.attr('d', path)
+		.on('mouseover', function(d){
+		    console.log(d);
+			var name = d.properties.nom;
+			console.log(d.properties.nom);
+			return document.getElementById('name').innerHTML=name;
+		});
+});
+</script>
+</body>
+</html>

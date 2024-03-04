@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>exo 5</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+  </head>
+  <style type="text/css">
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: black;
+    }
+    .axis text {
+      font-family: sans-serif;
+      font-size: 8px;
+    }
+  </style>
+  <body></body>
+  <script type="module">
+    // * REPRESENTATION 1
+    // Charger le fichier CSV
+    d3.csv("penguins.csv").then(function (data) {
+      // Créer le conteneur SVG
+      let height = 300;
+      let width = 500;
+      let padding = 40;
+
+      const svg = d3
+        .select("body")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height + 100)
+        .attr("viewBox", [0, 0, width, height])
+        .attr("style", "max-width: 100%; height: auto;")
+        .append("g")
+        .attr("transform", "translate(" + padding + "," + padding + ")");
+
+      // const islandSpecies = d3.group(
+      //   data,
+      //   (d) => d.island,
+      //   (d) => d.species
+      // );
+
+      // let groupedData = [];
+      // let minYDomain = Infinity;
+      // let maxYDomain = -Infinity;
+
+      // for (let [islandKey, islandValue] of islandSpecies.entries()) {
+      //   // console.log(islandKey + " = " + islandValue);
+      //   const islandObj = {
+      //     island: islandKey,
+      //     Adelie: 0,
+      //     Chinstrap: 0,
+      //     Gentoo: 0,
+      //   };
+      //   for (let [specieKey, specieValue] of islandValue.entries()) {
+      //     islandObj[specieKey] = specieValue.length;
+      //     if (specieValue.length < minYDomain) minYDomain = specieValue.length;
+
+      //     if (specieValue.length > maxYDomain) maxYDomain = specieValue.length;
+
+      //     // console.log(specieKey + " = " + specieValue);
+      //   }
+
+      //   groupedData.push(islandObj);
+      // }
+
+      // const subgroups = ["Adelie", "Chinstrap", "Gentoo"];
+
+      // Add X axis
+  var x = d3.scaleLinear()
+    .domain([0, 4000])
+    .range([ 0, width ]);
+  svg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x));
+
+  // Add Y axis
+  var y = d3.scaleLinear()
+    .domain([0, 500000])
+    .range([ height, 0]);
+  svg.append("g")
+    .call(d3.axisLeft(y));
+
+      svg
+        .append("g")
+        .data(data)
+        .enter()
+        .append("circle")
+        .att("cx", (data) => xScale(data.bill_length_mm))
+        .att("cy", (data) => yScale(data.bill_depth_mm))
+        .att("r", 0.5)
+        
+    });
+  </script>
+</html>

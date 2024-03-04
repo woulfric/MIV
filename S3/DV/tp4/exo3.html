@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exo 2</title>
+</head>
+<body></body>
+<script src="https://unpkg.com/topojson@3"></script>
+<script type="module">
+    import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+
+    let width = 1080;
+    let height = 720;
+
+    let svg = d3.select("body")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+
+    d3.json("algeria-provinces.json").then(function (data) {
+    const polygons = topojson.feature(
+        data, 
+        data.objects.DZA_adm1
+        );
+    console.log(polygons);
+
+        const projection = d3.geoMercator().fitSize([width, height],polygons);
+        const path = d3.geoPath().projection(projection);
+        
+        svg
+            .selectAll("path")
+            .data(polygons.features)
+            .enter().append("path")
+            .attr("d", path)
+            .style("fill", "blue")
+            .style("stroke", "black")
+            .style("stroke-width", 1);
+
+        
+        const arcs = polygons.features
+        
+
+    
+    })
+</script>
+</html>

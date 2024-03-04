@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Chargement de données GeoJSON et génération de chemins (paths) SVG</title>
+		<script type="text/javascript" src="d3.v3.js"></script>	
+		<style>
+			path.countries {stroke-width: 1; stroke: red;  opacity: .5; fill: red;}
+			</style>	
+	</head>
+	<body>
+		<script type="text/javascript">
+
+			//Width and height
+			var w = 1200;
+			var h = 700;
+
+			//générateur de chemins
+			var path = d3.geo.path();
+			//d3.geo.path() to draw a path from GIS coordinates
+			//given a geometry or feature object, it generates the path data string suitable for the "d" attribute
+			//Create SVG element
+			var svg = d3.select("body")
+						.append("svg")
+						.attr("width", w)
+						.attr("height", h);
+
+			
+			d3.json("us-statesOneState.json", function(x) { 
+				//console.log(x.features);
+				//Bind data and create one path per GeoJSON feature
+				svg.selectAll("path")
+				   .data(x.features)
+				   .enter()
+				   .append("path")
+				   .attr("d", path)
+				   .style("fill", "blue");
+		
+			});
+			
+		</script>
+	</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <style>
+    .bubble {
+      stroke-width: 2px;
+      stroke: grey;
+    }
+    .bubble:hover {
+      stroke: black;
+    }
+  </style>
+  <body>
+    <div class="rects"></div>
+    <div class="exo 6"></div>
+  </body>
+
+  <script type="module">
+    import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+
+    const scatter = (callback) => {
+      d3.csv("penguins.csv")
+        .then((data) => {
+          // const cleanData = data.map((d) => {
+          //   if (
+          //     !d.species ||
+          //     !d.bill_length_mm ||
+          //     !d.bill_depth_mm ||
+          //     !d.flipper_length_mm ||
+          //     !d.body_mass_g
+          //   )
+          //     return;
+          //   return {
+          //     species: d.Species,
+          //     bill_length_mm: +d.bill_length_mm,
+          //     bill_depth_mm: +d.bill_depth_mm,
+          //     flipper_length_mm: +d.flipper_length_mm,
+          //     body_mass_g: +d.body_mass_g,
+          //   };
+          // });
+          const cleanData = data.filter((d) => {
+            return (
+              d.species &&
+              d.bill_length_mm &&
+              d.bill_depth_mm &&
+              d.flipper_length_mm &&
+              d.body_mass_g
+            );
+          });
+          callback(cleanData);
+        })
+        .catch((err) => console.error(err));
+    };
+
+    scatter((data) => {
+      const width = 1080;
+      const height = 1080;
+      const sizeWhole = 1060;
+
+      const margin = 20;
+
+      const svg = d3
+        .select("body")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("viewBox", [0, 0, width, height])
+        .attr("style", "max-width: 100%; height: auto;")
+        .append("g")
+        .attr("transform", "translate(" + margin + "," + margin + ")");
+
+      // What are the numeric variables in this dataset? How many do I have
+      const allVar = [
+        "bill_length_mm",
+        "bill_depth_mm",
+        "flipper_length_mm",
+        "body_mass_g",
+      ];
+      const numVar = allVar.length;
+
+      const size = sizeWhole / numVar;
+
+      const position = d3
+        .scalePoint()
+        .domain(allVar)
+        .range([0, sizeWhole - size]);
+
+      // Color scale: give me a specie name, I return a color
+      const color = d3
+        .scaleOrdinal()
+        .domain(["Adelie", "Chinstrap", "Gentoo"])
+        .range(["#402D54", "#D18975", "#8FD175"]);
+
+      const shape = d3.scaleOrdinal(
+        data.map((d) => d.sex),
+        d3.symbols.map((s) => d3.symbol().type(s)())
+      );
+
+      for (const i in allVar) {
+        for (const j in allVar) {
+          // Get current variable name
+          const var1 = allVar[i];
+          const var2 = allVar[j];
+
+          if (var1 === var2) continue;
+
+          const xextent = d3.extent(data, function (d) {
+            return +d[var1];
+          });
+          const x = d3
+            .scaleLinear()
+            .domain(xextent)
+            .nice()
+            .range([0, size - 2 * margin]);
+
+          const yextent = d3.extent(data, function (d) {
+            return +d[var2];
+          });
+
+          const y = d3
+            .scaleLinear()
+            .domain(yextent)
+            .nice()
+            .range([size - 2 * margin, 0]);
+
+          const tmp = svg
+            .append("g")
+            .attr(
+              "transform",
+              `translate(${position(var1) + margin},${position(var2) + margin})`
+            );
+
+          tmp
+            .append("g")
+            .attr("transform", `translate(0,${size - margin * 2})`)
+            .call(d3.axisBottom(x).ticks(3));
+          tmp.append("g").call(d3.axisLeft(y).ticks(3));
+
+          // tmp
+          //   .selectAll("myCircles")
+          //   .data(data)
+          //   .join("circle")
+          //   .attr("cx", function (d) {
+          //     return x(+d[var1]);
+          //   })
+          //   .attr("cy", function (d) {
+          //     return y(+d[var2]);
+          //   })
+          //   .attr("r", 3)
+          //   .attr("fill", function (d) {
+          //     return color(d.species);
+          //   });
+          tmp
+            .selectAll("symbole")
+            .data(data)
+            .join("path")
+            .attr("transform", function (d) {
+              return "translate(" + x(+d[var1]) + "," + y(+d[var2]) + ")";
+            })
+            .attr("fill", function (d) {
+              return color(d.species);
+            })
+            .attr("d", (d) => shape(d.sex));
+        }
+      }
+      for (const i in allVar) {
+        for (const j in allVar) {
+          if (i != j) {
+            continue;
+          }
+
+          const var1 = allVar[i];
+          const var2 = allVar[j];
+          svg
+            .append("g")
+            .attr("transform", `translate(${position(var1)},${position(var2)})`)
+            .append("text")
+            .attr("x", size / 2)
+            .attr("y", size / 2)
+            .text(var1)
+            .attr("text-anchor", "middle");
+        }
+      }
+    });
+  </script>
+</html>

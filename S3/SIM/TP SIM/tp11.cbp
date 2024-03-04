@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="TP SIM" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/tp11" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-DGLFW_INCLUDE_GLU" />
+					<Add directory="C:/GLFW/include" />
+					<Add directory="include" />
+					<Add directory="C:/glm/glm" />
+					<Add directory="model" />
+				</Compiler>
+				<Linker>
+					<Add library="C:/GLFW/lib/libglfw3.a" />
+					<Add library="C:/GLFW/lib/libglfw3dll.a" />
+					<Add library="C:/Program Files/CodeBlocks/MinGW/x86_64-w64-mingw32/lib/libopengl32.a" />
+					<Add library="C:/Program Files/CodeBlocks/MinGW/x86_64-w64-mingw32/lib/libgdi32.a" />
+					<Add library="../../../../../../Program Files/CodeBlocks/MinGW/x86_64-w64-mingw32/lib/libglu32.a" />
+					<Add directory="C:/GLFW/lib" />
+					<Add directory="model" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/tp11" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+		</Compiler>
+		<Unit filename="glad.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="main.cpp" />
+		<Unit filename="model/cube.obj" />
+		<Unit filename="model/objload.cpp" />
+		<Unit filename="model/objload.hpp" />
+		<Unit filename="model/torus.obj" />
+		<Unit filename="obj/Debug/TP2.o">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="obj/Debug/glad.o">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="obj/Debug/main.o">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="obj/Debug/objload.o">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="obj/Debug/shader/shader.o">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="shader/SimpleFragmentShader.fragmentshader" />
+		<Unit filename="shader/SimpleVertexShader.vertexshader" />
+		<Unit filename="shader/shader.cpp" />
+		<Unit filename="shader/shader.hpp" />
+		<Unit filename="textures/1.raw" />
+		<Unit filename="textures/2.raw" />
+		<Unit filename="textures/3.raw" />
+		<Unit filename="textures/4.raw" />
+		<Unit filename="textures/5.raw" />
+		<Unit filename="textures/6.raw" />
+		<Unit filename="textures/damier.raw" />
+		<Unit filename="textures/deux.raw" />
+		<Unit filename="textures/herbe.raw" />
+		<Unit filename="textures/un.raw" />
+		<Extensions>
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>geojson csv join</title>
+    <script type="text/javascript" src="topojson.v1.min.js"></script>
+    <script type="text/javascript" src="d3.v3.js"></script>
+  </head>
+
+<body>
+   
+</body>
+<script type="text/javascript">
+var h = 600,
+    w = 1100;
+
+// set-up unit projection and path
+var projection = d3.geo.mercator()
+    .scale(1)
+	//.center([11.997337,23.51717800000001])
+    .translate([0, 0]);
+
+var path = d3.geo.path()
+    .projection(projection);
+
+// set-up svg canvas
+var svg = d3.select("body").append("svg")
+    .attr("height", h)
+    .attr("width", w);
+d3.json("algeria2.json", function(error, data) {
+
+      var world = data.features;
+
+       var b = path.bounds(data),
+            s = .95 / Math.max((b[1][0] - b[0][0]) / w, (b[1][1] - b[0][1]) / h),
+            t = [(w - s * (b[1][0] + b[0][0])) / 2, (h - s * (b[1][1] + b[0][1])) / 2];
+
+        projection.scale(s)
+		.center([(b[1][0]+b[0][0])/2, (b[1][1]+b[0][1])/2])
+            .translate(t);
+
+        svg.selectAll("path")
+            .data(world).enter()
+            .append("path") 
+            .style("fill", "none")
+            .style("stroke", "grey")
+            .style("stroke-width", "1px")
+            .attr("d", path);
+ 
+})
+</script>
+
+</html>

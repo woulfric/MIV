@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>exo 3</title>
+  </head>
+  <style>
+    .bubble {
+      stroke-width: 2px;
+      stroke: grey;
+    }
+    .bubble:hover {
+      stroke: black;
+    }
+  </style>
+  <body>
+    <div class="rects"></div>
+    <div class="exo3"></div>
+  </body>
+
+  <script type="module">
+    "use strict";
+    import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+
+    const scatter = (callback) => {
+      console.log("hello");
+
+      Promise.all([
+        // d3.csv("/data/us-productivity.csv"),
+        d3.csv("us-productivity.csv"),
+        // d3.csv("/data/us-cities-top-1k.csv"),
+        d3.csv("us-cities-top-1k.csv"),
+      ])
+        .then(function (files) {
+          const data = files[0].map((prod) => {
+            const city = files[1].find((city) => city.State == prod.state);
+            if (city)
+              return {
+                state: prod.state,
+                productivity: +prod.value,
+                population: +city.Population,
+                lat: +city.lat,
+                lon: +city.lon,
+              };
+          });
+
+          callback(data);
+        })
+        .catch(function (err) {
+          console.error(err);
+        });
+    };
+
+    scatter((data) => {
+      const width = 920;
+      const height = 500;
+
+      const margin = 20;
+
+      const svg = d3
+        .select(".exo3")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("viewBox", [0, 0, width, height])
+        .attr("style", "max-width: 100%; height: auto;")
+        .append("g")
+        .attr("transform", "translate(" + margin + "," + margin + ")");
+
+      // X scale
+      let xDomainMin = d3.min(data, (d) => {
+        return d.lat;
+      });
+
+      let xDomainMax = d3.max(data, (d) => {
+        return d.lat;
+      });
+
+      let xScale = d3
+        .scaleLinear()
+        .domain([xDomainMin, xDomainMax])
+        .range([margin, width]);
+
+      // y scale
+      let yDomainMin = d3.min(data, (d) => {
+        return d.lon;
+      });
+      let yDomainMax = d3.max(data, (d) => {
+        return d.lon;
+      });
+
+      let yScale = d3
+        .scaleLinear()
+        .domain([yDomainMin, yDomainMax])
+        .range([height - margin, margin]);
+
+      let xAxis = d3.axisBottom(xScale);
+
+      let yAxis = d3.axisLeft(yScale);
+
+      svg
+        .append("g")
+        .attr("class", "axis")
+        .attr("class", "xAxis")
+        .attr("transform", `translate(${0}, ${height - 2 * margin})`)
+        .call(xAxis);
+
+      svg
+        .append("g")
+        .attr("class", "axis")
+        .attr("transform", `translate(${margin}, ${-margin})`)
+        .call(yAxis);
+
+      const colorDomain = d3.extent(data, (d) => +d.productivity);
+      console.log("colorDomain", colorDomain);
+
+      let color = d3
+        .scaleSequential()
+        .domain(colorDomain)
+        .range(["blue", "pink"]);
+
+      colorScaleIndex(svg, color, colorDomain);
+
+      const radius = d3
+        .scaleLinear()
+        .domain([
+          +d3.min(data, (d) => d.population),
+          +d3.max(data, (d) => d.population),
+        ])
+        .range([2, 100]);
+
+      const [showTooltip, moveTooltip, hideTooltip] = addTooltip();
+
+      //sort data by population ascending
+
+      data.sort((d) => d3.ascending(d.population));
+
+      d3.interpolateHsl("red", "blue")(0.5);
+
+      svg
+        .append("g")
+        .selectAll("bubble")
+        .data(data)
+        // .sort(data, (d) => d.population)
+        .enter()
+        .append("circle")
+        .attr("class", "bubble")
+        .attr("cx", (d) => xScale(d.lat) - radius(d.population))
+        .attr("cy", (d) => yScale(d.lon) - radius(d.population))
+        .attr("r", (d) => radius(d.population))
+        .attr("stroke", "black")
+        .attr("fill", (d) => color(d.productivity))
+        .style("opacity", "0.7")
+        .call((circle) => circle.append("title").text((d) => d.state))
+        .on("mouseover", showTooltip)
+        .on("mousemove", moveTooltip)
+        .on("mouseleave", hideTooltip);
+
+      svg
+        .append("text")
+        .attr("x", width / 2)
+        .attr("y", margin / 2)
+        .attr("text-anchor", "middle")
+        .style("font-size", "16px")
+        .style("text-decoration", "underline")
+        .text("US Productivity vs Population");
+
+      //end
+    });
+
+    function addTooltip() {
+      var tooltip = d3
+        .select("exo3")
+        .append("div")
+        .style("opacity", 0)
+        .attr("class", "tooltip")
+        .style("background-color", "black")
+        .style("border-radius", "5px")
+        .style("padding", "10px")
+        .style("color", "white");
+
+      // -2- Create 3 functions to show / update (when mouse move but stay on same circle) / hide the tooltip
+      var showTooltip = function (d) {
+        tooltip.transition().duration(200);
+        tooltip
+          .style("opacity", 1)
+          .html("State: " + d.state)
+          .style("left", d3.pointer(this)[0] + 30 + "px")
+          .style("top", d3.pointer(this)[1] + 30 + "px");
+      };
+
+      var moveTooltip = function (d) {
+        tooltip
+          .style("left", d3.pointer(this)[0] + 30 + "px")
+          .style("top", d3.pointer(this)[1] + 30 + "px");
+      };
+      var hideTooltip = function (d) {
+        tooltip.transition().duration(200).style("opacity", 0);
+      };
+
+      return [showTooltip, moveTooltip, hideTooltip];
+    }
+
+    function colorScaleIndex(svg, colorScale, colorDomain) {
+      var data = d3.range(...colorDomain);
+
+      const colorAxis = d3.axisRight().scale(colorScale).ticks(0);
+
+      const colorAxisGroup = svg
+        .append("g")
+        .attr("class", "color-axis")
+        .attr("transform", "translate(150, 0)"); // to be changed
+
+      colorAxisGroup.call(colorAxis);
+
+      colorAxisGroup
+        .selectAll(".color-rect")
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr("x", (d, i) => i * 40)
+        .attr("y", 10)
+        .attr("width", 40)
+        .attr("height", 20)
+        .style("fill", (d, i) => colorScale(i / (data.length - 1))); // Scale the input for color
+
+      // You can customize the labels as needed
+      colorAxisGroup
+        .selectAll(".tick text")
+        .text((d, i) => `${((i / (data.length - 1)) * 100).toFixed(0)}%`);
+
+      //   var svg = d3.select("svg");
+
+      //   var rects = svg
+      //     .selectAll(".rects")
+      //     .data(data)
+      //     .enter()
+      //     .append("rect")
+      //     .attr("y", 10)
+      //     .attr("height", 100)
+      //     .attr("x", (d, i) => 10 + i * 9)
+      //     .attr("width", 6)
+      //     .attr("fill", (d) => color(d))
+      //     .attr("stroke", "gray");
+    }
+  </script>
+</html>

@@ -1,0 +1,18 @@
+%{
+
+%}
+
+%token IDF DECVAR TYPE PART_INST ACOLADE_OV ACOLADE_FR PVG VRG
+
+%%
+
+S: IDF ACOLADE_OV BLOCK_DEC BLOCK_INST ACOLADE_FR { printf("programe correct syntaxiquement"); YYACCEPT;};
+BLOCK_DEC: DECVAR ACOLADE_OV TYPE IDF VRG IDF PVG ACOLADE_FR;
+BLOCK_INST: PART_INST ACOLADE_OV ACOLADE_FR; 
+
+%%
+
+main(){
+    yyparse();
+    yywrap();
+}

@@ -1,0 +1,18 @@
+#version 330 core
+
+layout(location = 0) in vec3 VertexPosition;
+layout(location = 1) in vec3 VertexColor;
+layout(location = 2) in vec2 VertexTexture;
+out vec3 Fcolor;
+uniform mat4 MVP;
+out vec2 vTexture;
+
+void main(){
+    gl_Position.xyz = VertexPosition;
+    gl_Position.w = 1.0;
+    gl_Position = MVP * vec4(VertexPosition, 1);
+    Fcolor = VertexColor;
+    vTexture = VertexTexture;
+
+}
+
