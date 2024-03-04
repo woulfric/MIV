@@ -1,0 +1,2 @@
+def padding(img):
+    
